@@ -7,14 +7,30 @@ import Note from './Note';
 })
 export class NotesServicesService {
   notes : Note[] = [];
-  constructor() { }
+  constructor() { 
+    this.loadNotes();
+  }
+
+  loadNotes() {
+    const savedNotes = localStorage.getItem('notes');
+    if (savedNotes) {
+      this.notes = JSON.parse(savedNotes);
+    }
+  }
+
+  saveNotes() {
+    localStorage.setItem('notes', JSON.stringify(this.notes));
+  }
 
   ajoutNote(note:Note){
     this.notes.push(note);
+    this.saveNotes();
   }
+  
   getNotes():Note[]{ 
     return JSON.parse(JSON.stringify(this.notes));
   }
+  
   async deleteNote(i:number): Promise<boolean> {
     let result = await Swal.fire({
       title: 'Are you sure?',
@@ -34,6 +50,7 @@ export class NotesServicesService {
           'success'
         );
         this.notes.splice(i, 1);
+        this.saveNotes();
         return true;
     } else {
         return false;
@@ -60,6 +77,7 @@ export class NotesServicesService {
           'success'
         );
         this.notes = [];
+        this.saveNotes();
         return true;
     } else {
         return false;
@@ -78,8 +96,9 @@ export class NotesServicesService {
         showLoaderOnConfirm: true,
     });
 
-    if (text) {
+      if (text) {
         this.notes[i].text = text;
+        this.saveNotes();
         return true;
     } else {
         return false;
